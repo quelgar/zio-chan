@@ -1,7 +1,7 @@
 package ziochan
 
 import zio.*
-import ziochan.buffers.*
+import ziochan.*
 
 object Test extends App:
 

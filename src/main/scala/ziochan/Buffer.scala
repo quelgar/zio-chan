@@ -1,4 +1,4 @@
-package ziochan.buffers
+package ziochan
 
 import java.nio
 import zio.*
@@ -11,11 +11,11 @@ enum ByteOrder derives CanEqual:
 
 private given CanEqual[nio.ByteOrder, nio.ByteOrder] = CanEqual.derived
 
-abstract class Buffer[@specialized A] private[buffers] ():
+abstract class Buffer[@specialized A] private[ziochan] ():
 
   import Buffer.*
 
-  protected[buffers] val nioBuffer: nio.Buffer
+  protected[ziochan] val nioBuffer: nio.Buffer
 
   // *** Specific to each supported A
 
@@ -279,7 +279,7 @@ extension (b: Buffer[Short])
   def useJava[R, E, A](f: nio.ShortBuffer => ZIO[R, E, A]): ZIO[R, E, A] = f(b.nioBuffer.asInstanceOf[nio.ShortBuffer])
 
 
-private class ByteBuffer private[buffers] (protected[buffers] val nioBuffer: nio.ByteBuffer) extends Buffer[Byte]:
+private class ByteBuffer private[ziochan] (protected[ziochan] val nioBuffer: nio.ByteBuffer) extends Buffer[Byte]:
 
   override protected final def unsafeGetArray(): Array[Byte] | Null = nioBuffer.array
 
@@ -375,7 +375,7 @@ private class ByteBuffer private[buffers] (protected[buffers] val nioBuffer: nio
 
 end ByteBuffer
 
-final class CharBuffer private[buffers] (protected[buffers] val nioBuffer: nio.CharBuffer) extends Buffer[Char]:
+final class CharBuffer private[ziochan] (protected[ziochan] val nioBuffer: nio.CharBuffer) extends Buffer[Char]:
 
   override protected def unsafeGetArray(): Array[Char] | Null = nioBuffer.array
 
@@ -405,7 +405,7 @@ final class CharBuffer private[buffers] (protected[buffers] val nioBuffer: nio.C
 
 end CharBuffer
 
-final class DoubleBuffer private[buffers] (protected[buffers] val nioBuffer: nio.DoubleBuffer) extends Buffer[Double]:
+final class DoubleBuffer private[ziochan] (protected[ziochan] val nioBuffer: nio.DoubleBuffer) extends Buffer[Double]:
 
   override protected def unsafeGetArray(): Array[Double] | Null = nioBuffer.array
 
@@ -435,7 +435,7 @@ final class DoubleBuffer private[buffers] (protected[buffers] val nioBuffer: nio
 
 end DoubleBuffer
 
-final class FloatBuffer private[buffers] (protected[buffers] val nioBuffer: nio.FloatBuffer) extends Buffer[Float]:
+final class FloatBuffer private[ziochan] (protected[ziochan] val nioBuffer: nio.FloatBuffer) extends Buffer[Float]:
 
   override protected def unsafeGetArray(): Array[Float] | Null = nioBuffer.array
 
@@ -465,7 +465,7 @@ final class FloatBuffer private[buffers] (protected[buffers] val nioBuffer: nio.
 
 end FloatBuffer
 
-final class IntBuffer private[buffers] (protected[buffers] val nioBuffer: nio.IntBuffer) extends Buffer[Int]:
+final class IntBuffer private[ziochan] (protected[ziochan] val nioBuffer: nio.IntBuffer) extends Buffer[Int]:
 
   override protected def unsafeGetArray(): Array[Int] | Null = nioBuffer.array
 
@@ -495,7 +495,7 @@ final class IntBuffer private[buffers] (protected[buffers] val nioBuffer: nio.In
 
 end IntBuffer
 
-final class LongBuffer private[buffers] (protected[buffers] val nioBuffer: nio.LongBuffer) extends Buffer[Long]:
+final class LongBuffer private[ziochan] (protected[ziochan] val nioBuffer: nio.LongBuffer) extends Buffer[Long]:
 
   override protected def unsafeGetArray(): Array[Long] | Null = nioBuffer.array
 
@@ -525,7 +525,7 @@ final class LongBuffer private[buffers] (protected[buffers] val nioBuffer: nio.L
 
 end LongBuffer
 
-final private[buffers] class ShortBuffer (protected[buffers] val nioBuffer: nio.ShortBuffer) extends Buffer[Short]:
+final private[ziochan] class ShortBuffer (protected[ziochan] val nioBuffer: nio.ShortBuffer) extends Buffer[Short]:
 
   override protected def unsafeGetArray(): Array[Short] | Null = nioBuffer.array
 
@@ -555,7 +555,7 @@ final private[buffers] class ShortBuffer (protected[buffers] val nioBuffer: nio.
 
 end ShortBuffer
 
-final class MappedByteBuffer private[buffers] (nioMappedBuffer: nio.MappedByteBuffer) extends ByteBuffer(nioMappedBuffer):
+final class MappedByteBuffer private[ziochan] (nioMappedBuffer: nio.MappedByteBuffer) extends ByteBuffer(nioMappedBuffer):
 
   def isLoaded: UIO[Boolean] = ZIO.effectTotal(nioMappedBuffer.isLoaded())
 
