@@ -47,13 +47,13 @@ abstract class Buffer[@specialized A] private[ziochan] ():
 
   // *** Public API
 
-  final def asReadOnlyBuffer: UIO[Buffer[A]] = ZIO.effectTotal(unsafeFromNio(unsafeAsReadOnlyBuffer().nn))
+  final inline def asReadOnlyBuffer: UIO[Buffer[A]] = ZIO.effectTotal(unsafeFromNio(unsafeAsReadOnlyBuffer().nn))
 
-  final def compact: UIO[Unit] = ZIO.effectTotal(unsafeCompact()).unit
+  final inline def compact: UIO[Unit] = ZIO.effectTotal(unsafeCompact()).unit
 
-  final def get: UIO[A] = ZIO.effectTotal(unsafeGet())
+  final inline def get: UIO[A] = ZIO.effectTotal(unsafeGet())
 
-  final def get(index: Int): UIO[A] = ZIO.effectTotal(unsafeGet(index))
+  final inline def get(index: Int): UIO[A] = ZIO.effectTotal(unsafeGet(index))
 
   final def getChunk(maxLength: Int = Int.MaxValue)(using ClassTag[A]): UIO[Chunk[A]] = ZIO.effectTotal {
     val array = Array.ofDim[A](math.min(maxLength, nioBuffer.remaining()))
@@ -61,11 +61,11 @@ abstract class Buffer[@specialized A] private[ziochan] ():
     Chunk.fromArray(array)
   }
 
-  final def put(element: A): UIO[Unit] = ZIO.effectTotal(unsafePut(element)).unit
+  final inline def put(element: A): UIO[Unit] = ZIO.effectTotal(unsafePut(element)).unit
 
-  final def put(index: Int, element: A): UIO[Unit] = ZIO.effectTotal(unsafePut(index, element)).unit
+  final inline def put(index: Int, element: A): UIO[Unit] = ZIO.effectTotal(unsafePut(index, element)).unit
 
-  final def putBuffer(src: Buffer[A]): UIO[Unit] = ZIO.effectTotal(unsafePutBuffer(src)).unit
+  final inline def putBuffer(src: Buffer[A]): UIO[Unit] = ZIO.effectTotal(unsafePutBuffer(src)).unit
 
   final def order: UIO[ByteOrder] = ZIO.effectTotal {
     given CanEqual[nio.ByteOrder | Null, Null] = CanEqual.derived
@@ -73,15 +73,15 @@ abstract class Buffer[@specialized A] private[ziochan] ():
     if order != null && order == nio.ByteOrder.LITTLE_ENDIAN.nn then ByteOrder.LittleEndian else ByteOrder.BigEndian
   }
 
-  final def slice: UIO[Buffer[A]] = ZIO.effectTotal(unsafeFromNio(nioBuffer.slice().nn))
+  final inline def slice: UIO[Buffer[A]] = ZIO.effectTotal(unsafeFromNio(nioBuffer.slice().nn))
 
-  final def duplicate: UIO[Buffer[A]] = ZIO.effectTotal(unsafeFromNio(nioBuffer.duplicate().nn))
+  final inline def duplicate: UIO[Buffer[A]] = ZIO.effectTotal(unsafeFromNio(nioBuffer.duplicate().nn))
 
-  final def capacity: Int = nioBuffer.capacity
+  final inline def capacity: Int = nioBuffer.capacity
 
-  final def position: UIO[Int] = ZIO.effectTotal(nioBuffer.position)
+  final inline def position: UIO[Int] = ZIO.effectTotal(nioBuffer.position)
 
-  final def position(newPosition: Int): UIO[Unit] = ZIO.effectTotal(nioBuffer.position(newPosition)).unit
+  final inline def position(newPosition: Int): UIO[Unit] = ZIO.effectTotal(nioBuffer.position(newPosition)).unit
 
   final def movePosition(delta: Int): UIO[Int] =
     for 
@@ -90,9 +90,9 @@ abstract class Buffer[@specialized A] private[ziochan] ():
       _ <- position(newPos)
     yield newPos
 
-  final def limit: UIO[Int] = ZIO.effectTotal(nioBuffer.limit)
+  final inline def limit: UIO[Int] = ZIO.effectTotal(nioBuffer.limit)
 
-  final def limit(newLimit: Int): UIO[Unit] = ZIO.effectTotal(nioBuffer.limit(newLimit)).unit
+  final inline def limit(newLimit: Int): UIO[Unit] = ZIO.effectTotal(nioBuffer.limit(newLimit)).unit
 
   final def moveLimit(delta: Int): UIO[Int] =
     for
@@ -101,25 +101,25 @@ abstract class Buffer[@specialized A] private[ziochan] ():
       _ <- limit(newPos)
     yield newPos
 
-  final def remaining: UIO[Int] = ZIO.effectTotal(nioBuffer.remaining)
+  final inline def remaining: UIO[Int] = ZIO.effectTotal(nioBuffer.remaining)
 
-  final def hasRemaining: UIO[Boolean] = ZIO.effectTotal(nioBuffer.hasRemaining)
+  final inline def hasRemaining: UIO[Boolean] = ZIO.effectTotal(nioBuffer.hasRemaining)
 
-  final def mark: UIO[Unit] = ZIO.effectTotal(nioBuffer.mark()).unit
+  final inline def mark: UIO[Unit] = ZIO.effectTotal(nioBuffer.mark()).unit
 
-  final def reset: UIO[Unit] = ZIO.effectTotal(nioBuffer.reset()).unit
+  final inline def reset: UIO[Unit] = ZIO.effectTotal(nioBuffer.reset()).unit
 
-  final def clear: UIO[Unit] = ZIO.effectTotal(nioBuffer.clear()).unit
+  final inline def clear: UIO[Unit] = ZIO.effectTotal(nioBuffer.clear()).unit
 
-  final def flip: UIO[Unit] = ZIO.effectTotal(nioBuffer.flip()).unit
+  final inline def flip: UIO[Unit] = ZIO.effectTotal(nioBuffer.flip()).unit
 
-  final def rewind: UIO[Unit] = ZIO.effectTotal(nioBuffer.rewind()).unit
+  final inline def rewind: UIO[Unit] = ZIO.effectTotal(nioBuffer.rewind()).unit
 
   final def isReadOnly: Boolean = nioBuffer.isReadOnly
 
-  final def hasArray: Boolean = nioBuffer.hasArray
+  final inline def hasArray: Boolean = nioBuffer.hasArray
 
-  final def isDirect: Boolean = nioBuffer.isDirect
+  final inline def isDirect: Boolean = nioBuffer.isDirect
 
   final def putChunk(chunk: Chunk[A])(using ClassTag[A]): UIO[Chunk[A]] =
     for
@@ -128,7 +128,7 @@ abstract class Buffer[@specialized A] private[ziochan] ():
       _ <- ZIO.effectTotal(unsafePutArray(putChunk.toArray))
     yield remainderChunk
 
-  final def array: UIO[(Array[A], Int)] = ZIO.effectTotal(unsafeGetArray().nn -> nioBuffer.arrayOffset)
+  final inline def array: UIO[(Array[A], Int)] = ZIO.effectTotal(unsafeGetArray().nn -> nioBuffer.arrayOffset)
 
   final def withArray[R, E, B](noArray: ZIO[R, E, B], hasArray: (Array[A], Int) => ZIO[R, E, B]): ZIO[R, E, B] =
     if nioBuffer.hasArray then
