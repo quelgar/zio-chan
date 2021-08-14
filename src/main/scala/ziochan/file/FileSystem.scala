@@ -49,7 +49,7 @@ end FileSystem
 
 object FileSystem:
 
-  def fromJava(javaFileSystem: nf.FileSystem): FileSystem = new FileSystem(javaFileSystem)
+  def fromJava(javaFileSystem: nf.FileSystem): FileSystem = FileSystem(javaFileSystem)
 
   val default: FileSystem = fromJava(nf.FileSystems.getDefault.nn)
 

@@ -212,39 +212,39 @@ object Buffer:
   private val dieNotByteBuffer = UIO.dieMessage("Not a byte buffer")
 
   object byte:
-    def allocate(capacity: Int): UIO[Buffer[Byte]] = ZIO.effectTotal(new ByteBuffer(nio.ByteBuffer.allocate(capacity).nn))
+    def allocate(capacity: Int): UIO[Buffer[Byte]] = ZIO.effectTotal(ByteBuffer(nio.ByteBuffer.allocate(capacity).nn))
 
-    def allocateDirect(capacity: Int): UIO[Buffer[Byte]] = ZIO.effectTotal(new ByteBuffer(nio.ByteBuffer.allocateDirect(capacity).nn))
+    def allocateDirect(capacity: Int): UIO[Buffer[Byte]] = ZIO.effectTotal(ByteBuffer(nio.ByteBuffer.allocateDirect(capacity).nn))
 
     def fromChunk(chunk: Chunk[Byte]): UIO[Buffer[Byte]] = allocate(chunk.size).tap(_.putChunk(chunk)).tap(_.clear)
     
   object char:
-    def allocate(capacity: Int): UIO[Buffer[Char]] = ZIO.effectTotal(new CharBuffer(nio.CharBuffer.allocate(capacity).nn))
+    def allocate(capacity: Int): UIO[Buffer[Char]] = ZIO.effectTotal(CharBuffer(nio.CharBuffer.allocate(capacity).nn))
 
     def fromChunk(chunk: Chunk[Char]): UIO[Buffer[Char]] = allocate(chunk.size).tap(_.putChunk(chunk)).tap(_.clear)
 
   object double:
-    def allocate(capacity: Int): UIO[Buffer[Double]] = ZIO.effectTotal(new DoubleBuffer(nio.DoubleBuffer.allocate(capacity).nn))
+    def allocate(capacity: Int): UIO[Buffer[Double]] = ZIO.effectTotal(DoubleBuffer(nio.DoubleBuffer.allocate(capacity).nn))
 
     def fromChunk(chunk: Chunk[Double]): UIO[Buffer[Double]] = allocate(chunk.size).tap(_.putChunk(chunk)).tap(_.clear)
 
   object float:
-    def allocate(capacity: Int): UIO[Buffer[Float]] = ZIO.effectTotal(new FloatBuffer(nio.FloatBuffer.allocate(capacity).nn))
+    def allocate(capacity: Int): UIO[Buffer[Float]] = ZIO.effectTotal(FloatBuffer(nio.FloatBuffer.allocate(capacity).nn))
 
     def fromChunk(chunk: Chunk[Float]): UIO[Buffer[Float]] = allocate(chunk.size).tap(_.putChunk(chunk)).tap(_.clear)
 
   object int:
-    def allocate(capacity: Int): UIO[Buffer[Int]] = ZIO.effectTotal(new IntBuffer(nio.IntBuffer.allocate(capacity).nn))
+    def allocate(capacity: Int): UIO[Buffer[Int]] = ZIO.effectTotal(IntBuffer(nio.IntBuffer.allocate(capacity).nn))
 
     def fromChunk(chunk: Chunk[Int]): UIO[Buffer[Int]] = allocate(chunk.size).tap(_.putChunk(chunk)).tap(_.clear)
 
   object long:
-    def allocate(capacity: Int): UIO[Buffer[Long]] = ZIO.effectTotal(new LongBuffer(nio.LongBuffer.allocate(capacity).nn))
+    def allocate(capacity: Int): UIO[Buffer[Long]] = ZIO.effectTotal(LongBuffer(nio.LongBuffer.allocate(capacity).nn))
 
     def fromChunk(chunk: Chunk[Long]): UIO[Buffer[Long]] = allocate(chunk.size).tap(_.putChunk(chunk)).tap(_.clear)
 
   object short:
-    def allocate(capacity: Int): UIO[Buffer[Short]] = ZIO.effectTotal(new ShortBuffer(nio.ShortBuffer.allocate(capacity).nn))
+    def allocate(capacity: Int): UIO[Buffer[Short]] = ZIO.effectTotal(ShortBuffer(nio.ShortBuffer.allocate(capacity).nn))
 
     def fromChunk(chunk: Chunk[Short]): UIO[Buffer[Short]] = allocate(chunk.size).tap(_.putChunk(chunk)).tap(_.clear)
 
@@ -285,7 +285,7 @@ private class ByteBuffer private[ziochan] (protected[ziochan] val nioBuffer: nio
 
   override protected final def unsafePutArray(a: Array[Byte]): Unit = nioBuffer.put(a)
 
-  override protected final def unsafeFromNio(nioBuffer: nio.Buffer): Buffer[Byte] = new ByteBuffer(nioBuffer.asInstanceOf[nio.ByteBuffer])
+  override protected final def unsafeFromNio(nioBuffer: nio.Buffer): Buffer[Byte] = ByteBuffer(nioBuffer.asInstanceOf[nio.ByteBuffer])
 
   override protected final def unsafeGetOrder(): nio.ByteOrder | Null = nioBuffer.order
 
@@ -309,21 +309,21 @@ private class ByteBuffer private[ziochan] (protected[ziochan] val nioBuffer: nio
 
   // *** Byte-specific API
   
-  override final def alignedSlice(unitSize: Int)(using Byte =:= Byte): UIO[Buffer[Byte]] = ZIO.effectTotal(new ByteBuffer(nioBuffer.alignedSlice(unitSize).nn))
+  override final def alignedSlice(unitSize: Int)(using Byte =:= Byte): UIO[Buffer[Byte]] = ZIO.effectTotal(ByteBuffer(nioBuffer.alignedSlice(unitSize).nn))
 
   override final def alignmentOffset(index: Int, unitSize: Int)(using Byte =:= Byte): UIO[Int] = ZIO.effectTotal(nioBuffer.alignmentOffset(index, unitSize))
 
-  override final def asCharBuffer(using Byte =:= Byte): UIO[Buffer[Char]] = ZIO.effectTotal(new CharBuffer(nioBuffer.asCharBuffer().nn))
+  override final def asCharBuffer(using Byte =:= Byte): UIO[Buffer[Char]] = ZIO.effectTotal(CharBuffer(nioBuffer.asCharBuffer().nn))
 
-  override def asDoubleBuffer(using Byte =:= Byte): UIO[Buffer[Double]] = ZIO.effectTotal(new DoubleBuffer(nioBuffer.asDoubleBuffer().nn))
+  override def asDoubleBuffer(using Byte =:= Byte): UIO[Buffer[Double]] = ZIO.effectTotal(DoubleBuffer(nioBuffer.asDoubleBuffer().nn))
 
-  override def asFloatBuffer(using Byte =:= Byte): UIO[Buffer[Float]] = ZIO.effectTotal(new FloatBuffer(nioBuffer.asFloatBuffer().nn))
+  override def asFloatBuffer(using Byte =:= Byte): UIO[Buffer[Float]] = ZIO.effectTotal(FloatBuffer(nioBuffer.asFloatBuffer().nn))
 
-  override def asIntBuffer(using Byte =:= Byte): UIO[Buffer[Int]] = ZIO.effectTotal(new IntBuffer(nioBuffer.asIntBuffer().nn))
+  override def asIntBuffer(using Byte =:= Byte): UIO[Buffer[Int]] = ZIO.effectTotal(IntBuffer(nioBuffer.asIntBuffer().nn))
 
-  override def asLongBuffer(using Byte =:= Byte): UIO[Buffer[Long]] = ZIO.effectTotal(new LongBuffer(nioBuffer.asLongBuffer().nn))
+  override def asLongBuffer(using Byte =:= Byte): UIO[Buffer[Long]] = ZIO.effectTotal(LongBuffer(nioBuffer.asLongBuffer().nn))
 
-  override def asShortBuffer(using Byte =:= Byte): UIO[Buffer[Short]] = ZIO.effectTotal(new ShortBuffer(nioBuffer.asShortBuffer().nn))
+  override def asShortBuffer(using Byte =:= Byte): UIO[Buffer[Short]] = ZIO.effectTotal(ShortBuffer(nioBuffer.asShortBuffer().nn))
 
   override def getChar(using Byte =:= Byte): UIO[Char] = ZIO.effectTotal(nioBuffer.getChar())
 
@@ -381,7 +381,7 @@ final class CharBuffer private[ziochan] (protected[ziochan] val nioBuffer: nio.C
 
   override protected def unsafePutArray(a: Array[Char]): Unit = nioBuffer.put(a)
 
-  override protected def unsafeFromNio(nioBuffer: nio.Buffer): Buffer[Char] = new CharBuffer(nioBuffer.asInstanceOf[nio.CharBuffer])
+  override protected def unsafeFromNio(nioBuffer: nio.Buffer): Buffer[Char] = CharBuffer(nioBuffer.asInstanceOf[nio.CharBuffer])
 
   override protected def unsafeGetOrder(): nio.ByteOrder | Null = nioBuffer.order
 
@@ -411,7 +411,7 @@ final class DoubleBuffer private[ziochan] (protected[ziochan] val nioBuffer: nio
 
   override protected def unsafePutArray(a: Array[Double]): Unit = nioBuffer.put(a)
 
-  override protected def unsafeFromNio(nioBuffer: nio.Buffer): Buffer[Double] = new DoubleBuffer(nioBuffer.asInstanceOf[nio.DoubleBuffer])
+  override protected def unsafeFromNio(nioBuffer: nio.Buffer): Buffer[Double] = DoubleBuffer(nioBuffer.asInstanceOf[nio.DoubleBuffer])
 
   override protected def unsafeGetOrder(): nio.ByteOrder | Null = nioBuffer.order
 
@@ -441,7 +441,7 @@ final class FloatBuffer private[ziochan] (protected[ziochan] val nioBuffer: nio.
 
   override protected def unsafePutArray(a: Array[Float]): Unit = nioBuffer.put(a)
 
-  override protected def unsafeFromNio(nioBuffer: nio.Buffer): Buffer[Float] = new FloatBuffer(nioBuffer.asInstanceOf[nio.FloatBuffer])
+  override protected def unsafeFromNio(nioBuffer: nio.Buffer): Buffer[Float] = FloatBuffer(nioBuffer.asInstanceOf[nio.FloatBuffer])
 
   override protected def unsafeGetOrder(): nio.ByteOrder | Null = nioBuffer.order
 
@@ -471,7 +471,7 @@ final class IntBuffer private[ziochan] (protected[ziochan] val nioBuffer: nio.In
 
   override protected def unsafePutArray(a: Array[Int]): Unit = nioBuffer.put(a)
 
-  override protected def unsafeFromNio(nioBuffer: nio.Buffer): Buffer[Int] = new IntBuffer(nioBuffer.asInstanceOf[nio.IntBuffer])
+  override protected def unsafeFromNio(nioBuffer: nio.Buffer): Buffer[Int] = IntBuffer(nioBuffer.asInstanceOf[nio.IntBuffer])
 
   override protected def unsafeGetOrder(): nio.ByteOrder | Null = nioBuffer.order
 
@@ -501,7 +501,7 @@ final class LongBuffer private[ziochan] (protected[ziochan] val nioBuffer: nio.L
 
   override protected def unsafePutArray(a: Array[Long]): Unit = nioBuffer.put(a)
 
-  override protected def unsafeFromNio(nioBuffer: nio.Buffer): Buffer[Long] = new LongBuffer(nioBuffer.asInstanceOf[nio.LongBuffer])
+  override protected def unsafeFromNio(nioBuffer: nio.Buffer): Buffer[Long] = LongBuffer(nioBuffer.asInstanceOf[nio.LongBuffer])
 
   override protected def unsafeGetOrder(): nio.ByteOrder | Null = nioBuffer.order
 
@@ -531,7 +531,7 @@ final private[ziochan] class ShortBuffer (protected[ziochan] val nioBuffer: nio.
 
   override protected def unsafePutArray(a: Array[Short]): Unit = nioBuffer.put(a)
 
-  override protected def unsafeFromNio(nioBuffer: nio.Buffer): Buffer[Short] = new ShortBuffer(nioBuffer.asInstanceOf[nio.ShortBuffer])
+  override protected def unsafeFromNio(nioBuffer: nio.Buffer): Buffer[Short] = ShortBuffer(nioBuffer.asInstanceOf[nio.ShortBuffer])
 
   override protected def unsafeGetOrder(): nio.ByteOrder | Null = nioBuffer.order
 

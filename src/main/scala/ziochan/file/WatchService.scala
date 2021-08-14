@@ -15,4 +15,4 @@ final class WatchService private (nioWs: nf.WatchService) extends IOCloseable:
 
 object WatchService:
 
-  def fromJava(javaWatchService: nf.WatchService): WatchService = new WatchService(javaWatchService)
+  def fromJava(javaWatchService: nf.WatchService): WatchService = WatchService(javaWatchService)

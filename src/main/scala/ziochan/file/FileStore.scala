@@ -47,4 +47,4 @@ object FileStore:
   final case class Attribute(viewName: String, attributeName: String):
     def javaString: String = s"$viewName:$attributeName"
 
-  def fromJava(javaFileStore: nf.FileStore): FileStore = new FileStore(javaFileStore)
+  def fromJava(javaFileStore: nf.FileStore): FileStore = FileStore(javaFileStore)
