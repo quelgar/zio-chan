@@ -3,8 +3,15 @@ package file
 
 import java.nio.{file as nf}
 import zio.ZIO
+import java.io.File
+import java.io.IOError
+import zio.IO
+import java.nio.file.LinkOption
+import java.io.IOException
+import zio.Chunk
+import scala.jdk.CollectionConverters.*
 
-final class Path private (val toJava: nf.Path) extends Watchable derives CanEqual:
+final class Path private (val toJava: nf.Path) extends AnyVal with Watchable derives CanEqual:
 
   import Path.*
 
@@ -19,6 +26,8 @@ final class Path private (val toJava: nf.Path) extends Watchable derives CanEqua
   def /(other: Path): Path = fromJava(toJava.resolve(other.toJava).nn)
 
   def /(other: String): Path = fromJava(toJava.resolve(other).nn)
+
+  def elements: Chunk[Path] = Chunk.fromIterable(toJava.asScala.map(fromJava))
 
   def filesystem: FileSystem = FileSystem.fromJava(toJava.getFileSystem.nn)
 
@@ -52,7 +61,14 @@ final class Path private (val toJava: nf.Path) extends Watchable derives CanEqua
 
   def relativize(other: Path): Path = fromJava(toJava.relativize(other.toJava).nn)
 
-  def toURI = ???
+  def toURI: IO[IOError, URI] = ZIO.effect(URI.fromJava(toJava.toUri.nn)).refineToOrDie[IOError]
+
+  def toJavaFile: File = toJava.toFile.nn
+
+  def toAbsolutePath: IO[IOError, Path] = ZIO.effect(fromJava(toJava.toAbsolutePath.nn)).refineToOrDie[IOError]
+
+  def toRealPath(options: LinkOption*): IO[IOException, Path] =
+    ioEffect(fromJava(toJava.toRealPath(options*).nn))
 
 end Path
 

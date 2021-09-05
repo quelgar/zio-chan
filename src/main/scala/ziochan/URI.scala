@@ -14,48 +14,103 @@ import java.net.URLDecoder
 import zio.Chunk
 import zio.NonEmptyChunk
 
-final class URI private (val toJava: JURI) extends Ordered[URI] derives CanEqual:
+opaque type URI = JURI
 
-  import URI.*
+given CanEqual[URI, URI] = CanEqual.derived
 
-  override def equals(other: Any): Boolean = other.asInstanceOf[Matchable] match
-    case uri: URI => toJava.equals(uri.toJava)
-    case _        => false
+extension (u: JURI)
+  def scheme: Option[String] = u.getScheme.nullOpt
 
-  override inline def hashCode: Int = toJava.hashCode
+  def isAbsolute: Boolean = u.isAbsolute
 
-  override inline def toString: String = toJava.toString
+  def isOpaque: Boolean = u.isOpaque
 
-  override inline def compare(that: URI): Int = toJava.compareTo(that.toJava)
+  def schemeSpecificPart: String = u.getSchemeSpecificPart.nn
 
-  inline def scheme: Option[String] = toJava.getScheme.nullOpt
+  def rawSchemeSpecificPart: String = u.getRawSchemeSpecificPart.nn
 
-  inline def isAbsolute: Boolean = toJava.isAbsolute
+  def fragment: Option[String] = u.getFragment.nullOpt
 
-  inline def isOpaque: Boolean = toJava.isOpaque
+  def rawFragment: Option[String] = u.getRawFragment.nullOpt
 
-  inline def schemeSpecificPart: String = toJava.getSchemeSpecificPart.nn
+  def parseServerAuthority: Either[URISyntaxException, URI] =
+    in(u.parseServerAuthority.nn).catching[URISyntaxException]
 
-  inline def rawSchemeSpecificPart: String = toJava.getRawSchemeSpecificPart.nn
+  def normalizePath: URI = u.normalize.nn
 
-  inline def fragment: Option[String] = toJava.getFragment.nullOpt
+  def resolve(uri: URI): URI = u.resolve(uri).nn
 
-  inline def rawFragment: Option[String] = toJava.getRawFragment.nullOpt
+  def relativize(other: URI): URI = u.relativize(other).nn
 
-  inline def toURL: IO[MalformedURLException, URL] = ZIO.effect(toJava.toURL.nn).refineToOrDie[MalformedURLException]
+  def toURL: IO[MalformedURLException, URL] = ZIO.effect(u.toURL.nn).refineToOrDie[MalformedURLException]
 
-  inline def parseServerAuthority: Either[URISyntaxException, URI] =
-    in(fromJava(toJava.parseServerAuthority.nn)).catching[URISyntaxException]
+  def authority: Option[String] = u.getAuthority.nullOpt
 
-  inline def normalizePath: URI = fromJava(toJava.normalize.nn)
+  def rawAuthority: Option[String] = u.getRawAuthority.nullOpt
 
-  inline def resolve(uri: URI): URI = fromJava(toJava.resolve(uri.toJava).nn)
+  def userInfo: Option[String] = u.getUserInfo.nullOpt
 
-  inline def relativize(other: URI): URI = fromJava(toJava.relativize(other.toJava).nn)
+  def rawUserInfo: Option[String] = u.getRawUserInfo.nullOpt
+
+  def host: Option[URI.Host] = u.getHost.nullOpt.map(URI.Host.fromString)
+
+  def port: Option[Int] = u.getPort.match
+    case URI.unsetPortJava => None
+    case other             => Some(other)
+
+  def path: Option[URI.Path] = u.getPath.nullOpt.flatMap(URI.Path.fromString)
+
+  def rawPath: Option[String] = u.getRawPath.nullOpt
+
+  def query: Option[URI.Query] = u.getQuery.nullOpt.map(URI.Query.fromString)
+
+  def rawQuery: Option[String] = u.getRawQuery.nullOpt
+
+  def asciiString: String = u.toASCIIString.nn
+
+  def copyOpaque(
+    scheme: Option[String] = None,
+    schemeSpecificPart: Option[String] = None,
+    fragment: Option[String] = None
+  ): URI = URI.opaque(
+    scheme = scheme.orElse(u.scheme),
+    schemeSpecificPart = Some(schemeSpecificPart.getOrElse(u.schemeSpecificPart)),
+    fragment = fragment.orElse(u.fragment)
+  )
+
+  def copy(
+    scheme: Option[String] = None,
+    userInfo: Option[String] = None,
+    host: Option[URI.Host] = None,
+    port: Option[Int] = None,
+    path: Option[URI.Path] = None,
+    query: Option[URI.Query] = None,
+    fragment: Option[String] = None
+  ): URI = URI.hierarchical(
+    scheme = scheme.orElse(u.scheme),
+    userInfo = userInfo.orElse(u.userInfo),
+    host = host.orElse(u.host),
+    port = port.orElse(u.port),
+    path = path.orElse(u.path),
+    query = query.orElse(u.query),
+    fragment = fragment.orElse(u.fragment)
+  )
+
+  def withScheme(scheme: String): URI = copy(scheme = Some(scheme))
+
+  def withHost(host: URI.Host): URI = copy(host = Some(host))
+
+  def withHostString(host: String): URI = withHost(URI.Host.fromString(host))
+
+  def withPath(path: URI.Path): URI = copy(path = Some(path))
+
+  def updatePath(f: URI.Path => URI.Path): URI = withPath(f(path.getOrElse(URI.Path("."))))
+
+end extension
 
 object URI:
 
-  private val unsetPortJava = -1
+  private[ziochan] val unsetPortJava = -1
 
   opaque type Host = String
 
@@ -114,7 +169,7 @@ object URI:
 
   final case class Authority(userInfo: Option[String], host: Host, port: Option[Int]) derives CanEqual
 
-  def fromJava(javaUri: JURI): URI = URI(javaUri)
+  def fromJava(javaUri: JURI): URI = javaUri
 
   def parse(s: String): Either[URISyntaxException, URI] = in(fromJava(JURI(s))).catching[URISyntaxException]
 
